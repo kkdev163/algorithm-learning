@@ -92,10 +92,10 @@ function getLinkListLength(linkList) {
     return l;
 }
 
-function getLinkNodeByIndex(linkList, i) {
+function getLinkNodeByOffset(linkList, i) {
     let l = 0;
     let pNode = linkList;
-    while(l++ < i) {
+    while(l++ < i && pNode) {
         pNode = pNode.getNext();
     }
     return pNode;
@@ -110,14 +110,16 @@ function binarySearchL(linkList, x) {
     let h = getLinkListLength(linkList) - 1;
     let m = getMidInt(l, h);
     
+    let lNode = linkList
     while(l <= h ) {
-        let mNode = getLinkNodeByIndex(linkList, m);
+        let mNode = getLinkNodeByOffset(lNode, m - l);
         if (mNode.getValue() === x) {
             return m ;
         } else if (mNode.getValue() > x) {
             h = m - 1;
         } else {
             l = m + 1;
+            lNode = mNode.getNext();
         }
         m =  getMidInt(l, h);
     }
@@ -130,7 +132,7 @@ getSqrt = addHook(getSqrt);
 binarySearchL = addHook(binarySearchL);
 
 function main() {
-    const array = [...new Set(generateData(MILLION, 10 * MILLION))];
+    const array = [...new Set(generateData(1 * MILLION, 10 * MILLION))];
     array.sort((a, b) => a - b);
     const randomIndex = parseInt(Math.random() * array.length);
     const target = array[randomIndex];

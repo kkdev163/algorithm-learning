@@ -28,8 +28,9 @@ module.exports = {
     addHook: function (fn) {
         return function (...args) {
             const start = Date.now();
+            const ret =  fn.apply(this, args);
             console.log(fn.name + ' cost:' + (Date.now() - start));
-            return fn.apply(this, args);
+            return ret;
         }
     },
     generateData: (n, radix) => {
