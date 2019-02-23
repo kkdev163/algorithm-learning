@@ -6,10 +6,23 @@
  *  - 快排为了避免分布不均, 采用三数对比法优化。
  *  - 快排区间段数量小于4时, 为了减少调用栈，使用插入排序。
  *  - TODO 插入排序使用哨兵优化移动次数。
- */
+ * 
+ * 练习总结:
+ * quickSort:
+ * 当数据很大，然后数据变化的范围很小时, 不适宜用快排。如用基数改为100时，即generateData(MILLION, 100)进行测试:
+ * 实测来看，在一个范围内的数据很可能都是相同的。造成分割的不均，时间复杂度退化成O(n^2),并且很快达到栈溢出。
+ * 解决方法可以在遍历取中法中，判断数组是否已经有序，若有序则返回-1，结束继续递归操作。
+ * 传统的三数取中法：即对比区间首、中、尾三元素，取出值居中的元素值，作为分割哨兵。
+ * 
+ * mergeSort:
+ * 在合并操作中，原本是想用shift来节省copy数组的下标记录。。但没想到反而造成了极大的性能退化。。
+ * 因为shift操作，会移动整个数组。整体算法效率退化成O(n^2 * Logn)
+ * 
+ * 另外要注意下标的范围，几次调试来看，都是下标出错导致花费了较多调试时间
+ * */
 
-const K = 1024;
-const M = 1024 * K;
+const { K, M , MILLION } = require('../utils/const');
+const { addHook, generateData, arrayDeepEqual, swap, abs} = require('../utils');
 
 function qSort(array) {
     // Fixme: 此处将数据类型当作 int 判断
@@ -68,16 +81,6 @@ function quickSort(array, p, q) {
     quickSort(array, m+1, q);
 }
 
-function swap(array, i, j) {
-    const tmp = array[i];
-    array[i] = array[j];
-    array[j] = tmp;
-}
-
-function abs(x) {
-    return x > 0 ? x: -x
-}
-
 // 三数比较法，找到数组的中间元素下标
 function findMiddle(array, p, q) {
     let min = p, max = p;
@@ -128,35 +131,6 @@ function insertSort(array, p, q) {
     }
 }
 
-function generateData(n, radix) {
-    const items = [];
-    while(n--) {
-        items.push(parseInt(Math.random() * radix));
-    }
-    return items;
-}
-
-function arrayDeepEqual(array1, array2) {
-    if (array1.length !== array2.length) {
-        return false
-    }
-    for(let i=0, n=array1.length; i < n; i++) {
-        if (array1[i] !== array2[i]) {
-            return false
-        }
-    }
-    return true;
-}
-
-const MILLION = 1000000;
-
-function addHook(fn) {
-    return function(...args) {
-        const start = Date.now();
-        fn.apply(this, args)
-        console.log(fn.name + ' cost:' + (Date.now() - start));
-    }
-}
 function mainTest() {
     const data = generateData(MILLION, 100);
     const tmp = data.slice();
@@ -168,19 +142,3 @@ function mainTest() {
 }
 
 mainTest();
-
-/**
- * 总结
- * 
- * quickSort:
- * 当数据很大，然后数据变化的范围很小时, 不适宜用快排。如用基数改为100时，即generateData(MILLION, 100)进行测试:
- * 实测来看，在一个范围内的数据很可能都是相同的。造成分割的不均，时间复杂度退化成O(n^2),并且很快达到栈溢出。
- * 解决方法可以在遍历取中法中，判断数组是否已经有序，若有序则返回-1，结束继续递归操作。
- * 传统的三数取中法：即对比区间首、中、尾三元素，取出值居中的元素值，作为分割哨兵。
- * 
- * mergeSort:
- * 在合并操作中，原本是想用shift来节省copy数组的下标记录。。但没想到反而造成了极大的性能退化。。
- * 因为shift操作，会移动整个数组。整体算法效率退化成O(n^2 * Logn)
- * 
- * 另外要注意下标的范围，几次调试来看，都是下标出错导致花费了较多调试时间
- * */ 
