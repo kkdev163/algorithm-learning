@@ -63,6 +63,7 @@ function quickSort(array, p, q) {
         return
     }
     const m = portion(array, p, q);
+    if (m===-1) {return}
     quickSort(array, p, m-1);
     quickSort(array, m+1, q);
 }
@@ -89,7 +90,7 @@ function findMiddle(array, p, q) {
         }
     }
     if (min === max) {
-        return parseInt((p + q)/2);
+        return -1;
     }
     let avg = (array[max] + array[min]) / 2;
     let avgIndex = p;
@@ -104,6 +105,7 @@ function findMiddle(array, p, q) {
 function portion(array, p, q) {
     let i = p, j = p;
     let avgIndex = findMiddle(array, p, q);
+    if (avgIndex === -1) { return -1; }
     swap(array, avgIndex, q)
 
     for (; j < q; j++) {
@@ -113,7 +115,6 @@ function portion(array, p, q) {
         }
     }
     swap(array, i, q)
-    //console.log(p, q, i);
     return i;
 }
 
@@ -157,7 +158,7 @@ function addHook(fn) {
     }
 }
 function mainTest() {
-    const data = generateData(MILLION, MILLION);
+    const data = generateData(MILLION, 100);
     const tmp = data.slice();
     const hookQSort = addHook(qSort);
     const hookSort = addHook(Array.prototype.sort);
@@ -174,6 +175,8 @@ mainTest();
  * quickSort:
  * 当数据很大，然后数据变化的范围很小时, 不适宜用快排。如用基数改为100时，即generateData(MILLION, 100)进行测试:
  * 实测来看，在一个范围内的数据很可能都是相同的。造成分割的不均，时间复杂度退化成O(n^2),并且很快达到栈溢出。
+ * 解决方法可以在遍历取中法中，判断数组是否已经有序，若有序则返回-1，结束继续递归操作。
+ * 传统的三数取中法：即对比区间首、中、尾三元素，取出值居中的元素值，作为分割哨兵。
  * 
  * mergeSort:
  * 在合并操作中，原本是想用shift来节省copy数组的下标记录。。但没想到反而造成了极大的性能退化。。
